@@ -36,7 +36,7 @@ export function Header() {
       )}
       <Logo />
 
-      {isWideVersion && <SearchBox />}
+      {/* {isWideVersion && <SearchBox />} */}
 
       <Flex align="center=" ml="auto">
         <NotificationsNav />
