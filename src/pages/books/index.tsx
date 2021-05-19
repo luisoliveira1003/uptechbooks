@@ -3,9 +3,15 @@ import {
   Button,
   Divider,
   Flex,
+  Grid,
+  GridItem,
   Heading,
   Img,
+  Link,
+  Stack,
+  StackDivider,
   useBreakpointValue,
+  VStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -16,7 +22,11 @@ import { Header } from "../../components/Header";
 import { Sidebar } from "../../components/Sidebar";
 import { Input } from "../../components/Form/Input";
 import { api } from "../../services/api";
+import { GetStaticProps } from "next";
 
+interface BookFormData {
+  book: string;
+}
 interface BookDataProps {
   id: string;
   volumeInfo: {
@@ -27,12 +37,15 @@ interface BookDataProps {
     description: string;
     publishedDate: string;
   };
+  searchInfo: {
+    textSnippet: string;
+  };
 }
 
 const listBookFormSchema = yup.object().shape({
   book: yup
     .string()
-    .required("Nome do livro obrigatório")
+    .required("Nome do livro é obrigatório")
     .min(2, "No mínimo 2 caracteres"),
 });
 
@@ -48,37 +61,29 @@ export default function BookList() {
 
   const { errors } = formState;
 
-  const [book, setBook] = useState("");
+  // const [search, setSearch] = useState<BookFormData>();
   const [result, setResult] = useState<BookDataProps[]>([]);
   const [apiKey, setApiKey] = useState(
     "AIzaSyAUBxD6q_ArBZFN_vTShoJ91JRZnOlBkZM"
   );
 
-  let maxResults = 10;
+  let maxResults = 5;
 
-  function handleChange(event) {
-    const book = event.target.value;
-
-    setBook(book);
-  }
-
-  const handleListBook: SubmitHandler<BookDataProps> = async (values) => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    console.log(values);
+  const handleListBook: SubmitHandler<BookFormData> = async (values) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    api
+      .get(
+        "/v1/volumes?q=" +
+          values.book +
+          "&key=" +
+          apiKey +
+          "&maxResults=" +
+          maxResults
+      )
+      .then((data) => {
+        setResult(data.data.items);
+      });
   };
-
-  // function handleSubmitList(event) {
-  //   event.preventDefault();
-
-  //   api
-  //     .get(
-  //       "/v1/volumes?q=" + book + "&key=" + apiKey + "&maxResults=" + maxResults
-  //     )
-  //     .then((data) => {
-  //       setResult(data.data.items);
-  //     });
-  // }
 
   return (
     <Box>
@@ -101,12 +106,11 @@ export default function BookList() {
 
           <Divider my="6" borderColor="gray.700" />
 
-          <Flex my="6" maxWidth={1480}>
+          <Flex my="6" maxWidth={1480} mx="auto">
             <Input
               name="book"
               type="text"
-              w="85%"
-              // onChange={handleChange}
+              w="97%"
               placeholder="Digite o nome do livro"
               autoComplete="off"
               error={errors.book}
@@ -114,8 +118,9 @@ export default function BookList() {
             />
 
             <Button
-              px="6"
-              mx="6"
+              px={["3", "6"]}
+              mt="0.5"
+              mx="1"
               colorScheme="pink"
               type="submit"
               isLoading={formState.isSubmitting}
@@ -123,30 +128,53 @@ export default function BookList() {
               Buscar
             </Button>
           </Flex>
-          {result.map((book) => (
-            <Box>
-              <Heading mt="6" fontSize="md">
-                {book.volumeInfo.title}
-              </Heading>
-              <Heading mt="2" fontSize="sm">
-                {book.volumeInfo.description}
-              </Heading>
-              <Heading mt="2" fontSize="sm">
-                Data publicação:{" "}
-                {book.volumeInfo.publishedDate
-                  ? book.volumeInfo.publishedDate.substring(0, 4)
-                  : "Não informada"}
-              </Heading>
-              <Img
-                mt="2"
-                src={
-                  book.volumeInfo.imageLinks
-                    ? book.volumeInfo.imageLinks.thumbnail
-                    : "/images/image-notfound.png"
-                }
-              />
-            </Box>
-          ))}
+
+          <VStack
+            divider={<StackDivider borderColor="gray.200" />}
+            spacing={4}
+            align="stretch"
+          >
+            {result.map((book) => (
+              <Box key={book.id}>
+                <Grid
+                  h="220px"
+                  templateRows="repeat(2, 1fr)"
+                  templateColumns="repeat(5, 1fr)"
+                  gap={4}
+                >
+                  <GridItem>
+                    <Img
+                      mt="2"
+                      src={
+                        book.volumeInfo.imageLinks
+                          ? book.volumeInfo.imageLinks.thumbnail
+                          : "/images/image-notfound.png"
+                      }
+                    />
+                  </GridItem>
+
+                  <GridItem colSpan={4} rowSpan={1}>
+                    <Link href={`/books/${book.id}`}>
+                      <Heading rowSpan={1} fontSize="md">
+                        {book.volumeInfo.title}
+                      </Heading>
+                    </Link>
+                    <Heading mt="2" fontSize="sm">
+                      {book.volumeInfo.publishedDate
+                        ? book.volumeInfo.publishedDate.substring(0, 4)
+                        : "Não informada"}
+                    </Heading>
+
+                    <Heading mt="2" fontSize="sm">
+                      {book.searchInfo
+                        ? book.searchInfo.textSnippet
+                        : 'Não informado'}
+                    </Heading>
+                  </GridItem>
+                </Grid>
+              </Box>
+            ))}
+          </VStack>
         </Box>
       </Flex>
     </Box>
