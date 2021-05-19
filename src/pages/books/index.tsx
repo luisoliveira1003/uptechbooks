@@ -1,16 +1,20 @@
 import {
   Box,
   Button,
+  Divider,
   Flex,
   Heading,
   Img,
-  Input,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+
 import { Header } from "../../components/Header";
-import { SearchBox } from "../../components/Header/SearchBox";
 import { Sidebar } from "../../components/Sidebar";
+import { Input } from "../../components/Form/Input";
 import { api } from "../../services/api";
 
 interface BookDataProps {
@@ -25,11 +29,24 @@ interface BookDataProps {
   };
 }
 
+const listBookFormSchema = yup.object().shape({
+  book: yup
+    .string()
+    .required("Nome do livro obrigatório")
+    .min(2, "No mínimo 2 caracteres"),
+});
+
 export default function BookList() {
   const isWideVersion = useBreakpointValue({
     base: false,
     lg: true,
   });
+
+  const { register, handleSubmit, formState } = useForm({
+    resolver: yupResolver(listBookFormSchema),
+  });
+
+  const { errors } = formState;
 
   const [book, setBook] = useState("");
   const [result, setResult] = useState<BookDataProps[]>([]);
@@ -45,17 +62,23 @@ export default function BookList() {
     setBook(book);
   }
 
-  function handleSubmit(event) {
-    event.preventDefault();
+  const handleListBook: SubmitHandler<BookDataProps> = async (values) => {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    api
-      .get(
-        "/v1/volumes?q=" + book + "&key=" + apiKey + "&maxResults=" + maxResults
-      )
-      .then((data) => {
-        setResult(data.data.items);
-      });
-  }
+    console.log(values);
+  };
+
+  // function handleSubmitList(event) {
+  //   event.preventDefault();
+
+  //   api
+  //     .get(
+  //       "/v1/volumes?q=" + book + "&key=" + apiKey + "&maxResults=" + maxResults
+  //     )
+  //     .then((data) => {
+  //       setResult(data.data.items);
+  //     });
+  // }
 
   return (
     <Box>
@@ -70,17 +93,36 @@ export default function BookList() {
           borderRadius={8}
           bg="gray.800"
           p={["6", "8"]}
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(handleListBook)}
         >
-          <Input
-            type="text"
-            onChange={handleChange}
-            placeholder="Buscar livro"
-            autoComplete="off"
-          />
+          <Heading size="lg" fontWeight="normal">
+            Buscar livro
+          </Heading>
 
-          <Button type="submit">Search</Button>
+          <Divider my="6" borderColor="gray.700" />
 
+          <Flex my="6" maxWidth={1480}>
+            <Input
+              name="book"
+              type="text"
+              w="85%"
+              // onChange={handleChange}
+              placeholder="Digite o nome do livro"
+              autoComplete="off"
+              error={errors.book}
+              {...register("book")}
+            />
+
+            <Button
+              px="6"
+              mx="6"
+              colorScheme="pink"
+              type="submit"
+              isLoading={formState.isSubmitting}
+            >
+              Buscar
+            </Button>
+          </Flex>
           {result.map((book) => (
             <Box>
               <Heading mt="6" fontSize="md">
