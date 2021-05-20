@@ -8,21 +8,19 @@ import {
   Heading,
   Img,
   Link,
-  Stack,
   StackDivider,
+  Text,
   useBreakpointValue,
   VStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import React, { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-
+import { Input } from "../../components/Form/Input";
 import { Header } from "../../components/Header";
 import { Sidebar } from "../../components/Sidebar";
-import { Input } from "../../components/Form/Input";
 import { api } from "../../services/api";
-import { GetStaticProps } from "next";
 
 interface BookFormData {
   book: string;
@@ -40,6 +38,7 @@ interface BookDataProps {
   searchInfo: {
     textSnippet: string;
   };
+  isFavorite: boolean;
 }
 
 const listBookFormSchema = yup.object().shape({
@@ -66,6 +65,7 @@ export default function BookList() {
   const [apiKey, setApiKey] = useState(
     "AIzaSyAUBxD6q_ArBZFN_vTShoJ91JRZnOlBkZM"
   );
+  // const [favorites, setFavorites] = useState([]);
 
   let maxResults = 5;
 
@@ -165,11 +165,11 @@ export default function BookList() {
                         : "Não informada"}
                     </Heading>
 
-                    <Heading mt="2" fontSize="sm">
+                    <Text mt="2" fontSize="sm" textAlign="justify">
                       {book.searchInfo
                         ? book.searchInfo.textSnippet
-                        : 'Não informado'}
-                    </Heading>
+                        : "Não informado"}
+                    </Text>
                   </GridItem>
                 </Grid>
               </Box>
