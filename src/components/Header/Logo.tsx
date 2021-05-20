@@ -9,7 +9,7 @@ export function Logo() {
         letterSpacing="tight"
         w="64"
       >
-        Up Tech
+        Up! Tech
         <Text as="span" ml="1" color="pink.500">
           Riachuelo
         </Text>
