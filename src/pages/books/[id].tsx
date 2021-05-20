@@ -58,8 +58,6 @@ export default function Book() {
     }
   }, [query.id]);
 
-  console.log(selected);
-
   return (
     <Box>
       <Header />

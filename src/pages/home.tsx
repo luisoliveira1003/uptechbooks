@@ -1,6 +1,3 @@
-import { useEffect } from "react";
-import { api } from "../services/api";
-
 import { Box, Flex, SimpleGrid, Text, theme } from "@chakra-ui/react";
 import { ApexOptions } from "apexcharts";
 import dynamic from "next/dynamic";
