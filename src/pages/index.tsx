@@ -13,7 +13,7 @@ export default function Welcome() {
         <Stack spacing={6}>
           <Heading>Bem vindo ao Books Search</Heading>
           <Heading as="h2" size="md" color="pink.500">
-            Clique nas opções do menu a esquerda
+            Clique nas opções do menu à esquerda
           </Heading>
         </Stack>
       </Flex>
