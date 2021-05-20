@@ -14,13 +14,14 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { Input } from "../../components/Form/Input";
 import { Header } from "../../components/Header";
 import { Sidebar } from "../../components/Sidebar";
 import { api } from "../../services/api";
+import { DataGrid } from "@material-ui/data-grid";
 
 interface BookFormData {
   book: string;
@@ -81,6 +82,7 @@ export default function BookList() {
           maxResults
       )
       .then((data) => {
+        console.log(data);
         setResult(data.data.items);
       });
   };
